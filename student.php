@@ -1,5 +1,5 @@
-<?php
-require 'dbcon.php';
+<?php 
+require "dbcon.php"
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -18,34 +18,31 @@ require 'dbcon.php';
         <h1 class="modal-title fs-5" id="AddStudentModal">Add Student</h1>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-
       <form id="saveStudent"> 
-      <div class="modal-body">
-      <div class="alert alert-warning d-none" id="errorMessage"></div>
-
-        <div class="mb-3">
-            <label for="name" class="form-label">Name</label>
-            <input type="text" name="name" class="form-control">
+        <div class="modal-body">
+          <div class="alert alert-warning d-none" id="errorMessage"></div>
+          <div class="mb-3">
+              <label for="name" class="form-label">Name</label>
+              <input type="text" name="name" class="form-control">
+          </div>
+          <div class="mb-3">
+              <label for="Email" class="form-label">Email</label>
+              <input type="text" name="Email" class="form-control">
+          </div>
+          <div class="mb-3">
+              <label for="PhoneNumber" class="form-label">Phone Number</label>
+              <input type="text" name="PhoneNumber" class="form-control">
+          </div>
+          <div class="mb-3">
+              <label for="Course" class="form-label">Course</label>
+              <input type="text" name="Course" class="form-control">
+          </div>
         </div>
-        <div class="mb-3">
-            <label for="Email" class="form-label">Email</label>
-            <input type="text" name="Email" class="form-control">
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary">Save changes</button>
         </div>
-        <div class="mb-3">
-            <label for="PhoneNumber" class="form-label">Phone Number</label>
-            <input type="text" name="PhoneNumber" class="form-control">
-        </div>
-        <div class="mb-3">
-            <label for="Course" class="form-label">Course</label>
-            <input type="text" name="Course" class="form-control">
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="submit" class="btn btn-primary">Save changes</button>
-      </div>
       </form>
-
     </div>
   </div>
 </div>
@@ -60,7 +57,7 @@ require 'dbcon.php';
                     </button>
                 </div>
                 <div class="card-body">
-                  <table id="myTables" class="table table-boardered table-striped">
+                  <table id="myTables" class="table table-bordered table-striped">
                     <thead>
                        <tr>
                           <th>Id</th>
@@ -72,39 +69,28 @@ require 'dbcon.php';
                        </tr>
                     </thead>
                     <tbody>
-                      <tr>
                         <?php
-
                         $query = "SELECT * FROM students";
-                        $query_run = mysqli_query($con,$query);
-
-                        if(mysqli_num_rows($query_run)>0){
-                          
-                          foreach($query_run as $student){
+                        $query_run = mysqli_query($con, $query);
+                        if (mysqli_num_rows($query_run) > 0) {
+                          foreach ($query_run as $student) {
                             ?>
                               <tr>
-                                <td><?= $student['Id'];?></td>
-                                <td><?= $student['Name'];?></td>
-                                <td><?= $student['Email'];?></td>
-                                <td><?= $student['Phone'];?></td>
-                                <td><?= $student['Course'];?></td>
-                                
+                                <td><?= $student['Id']; ?></td>
+                                <td><?= $student['Name']; ?></td>
+                                <td><?= $student['Email']; ?></td>
+                                <td><?= $student['Phone']; ?></td>
+                                <td><?= $student['Course']; ?></td>
                                 <td>
-                                <a href=""class ="btn btn-info">View</a>
-                                  <a href=""class ="btn btn-success">Edit</a>
-                                  <a href=""class ="btn btn-danger">Deletes</a>
+                                  <a href="#" class="btn btn-info">View</a>
+                                  <button type="button" value="<?= $student['Id']; ?>" class="editStudentBtn btn btn-success">Edit</button>
+                                  <a href="#" class="btn btn-danger">Delete</a>
                                 </td>
-
                               </tr>
-                           <?php
-                          
+                            <?php
                           }
                         }
                         ?>
-                        <td>
-
-                        </td>
-                      </tr>
                     </tbody>
                   </table>
                 </div>
@@ -113,34 +99,43 @@ require 'dbcon.php';
     </div>
 </div>
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
 <script>
-  $(document).on('submit','#saveStudent',function(e){
-    e.preventDefault();  // Prevent the default form submit action
+  $(document).on('submit', '#saveStudent', function(e) {
+    e.preventDefault(); // Prevent the default form submit action
 
     var formData = new FormData(this);
     formData.append("save_Student", true);
 
     $.ajax({
       type: "POST",
-      url: "code.php",
+      url: "coding.php",
       data: formData,
       processData: false,
       contentType: false,
-      success: function(response){
-        var res = jQuery.parseJSON(response);
-        if(res.status == 422){
+      dataType: "json", // Add this line to ensure the response is parsed as JSON
+      success: function(response) {
+        if (response.status === 422) {
           $('#errorMessage').removeClass('d-none');
-          $('#errorMessage').text(res.message);
-        } else if(res.status == 200){
+          $('#errorMessage').text(response.message);
+        } else if (response.status === 200) {
           $('#errorMessage').addClass('d-none');
           $('#studentModal').modal('hide');
           $('#saveStudent')[0].reset();
-
           $('#myTables').load(location.href + " #myTables");
+        } else if (response.status === 500) {
+          $('#errorMessage').removeClass('d-none');
+          $('#errorMessage').text(response.message);
         }
+      },
+      error: function(xhr, status, error) {
+        console.error('AJAX error:', status, error);
+        $('#errorMessage').removeClass('d-none');
+        $('#errorMessage').text('An unexpected error occurred.');
       }
     });
-  });
+});
+
 </script>
 </body>
 </html>

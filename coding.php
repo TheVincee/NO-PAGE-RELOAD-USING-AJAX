@@ -1,45 +1,29 @@
 <?php
+require 'dbcon.php';
 
-$con = mysqli_connect('localhost', 'root', '', 'student_db');
+$response = array();
 
 if (isset($_POST['save_Student'])) {
-    $Name = mysqli_real_escape_string($con, $_POST['Name']);
-    $Email = mysqli_real_escape_string($con, $_POST['Email']);
-    $Phone = mysqli_real_escape_string($con, $_POST['PhoneNumber']);
-    $Course = mysqli_real_escape_string($con, $_POST['Course']);
+    $name = $_POST['name'];
+    $email = $_POST['Email'];
+    $phone = $_POST['PhoneNumber'];
+    $course = $_POST['Course'];
 
-    if ($Name == NULL || $Email == NULL || $Phone == NULL || $Course == NULL) {
-        $res = array(
-            'status' => 422,
-            'message' => 'All fields are required'
-        );
-        echo json_encode($res);
-        exit();
+    if (empty($name) || empty($email) || empty($phone) || empty($course)) {
+        $response['status'] = 422;
+        $response['message'] = "All fields are required.";
+    } else {
+        $query = "INSERT INTO students (Name, Email, Phone, Course) VALUES ('$name', '$email', '$phone', '$course')";
+        $query_run = mysqli_query($con, $query);
+
+        if ($query_run) {
+            $response['status'] = 200;
+            $response['message'] = "Student added successfully.";
+        } else {
+            $response['status'] = 500;
+            $response['message'] = "Database error.";
+        }
     }
-
-   
-    $query = "INSERT INTO students (Name, Email, Phone, Course) VALUES ('$Name', '$Email', '$Phone', '$Course')";
-    $query_run = mysqli_query($con, $query);
-
-    if($query_run){
-        
-        $res = array(
-            'status' => 200,
-            'message' => 'Student Added Successfully'
-
-        );
-        echo json_encode($res);
-        exit();
-    }
-    else 
-    {
-        $res = array(
-            'status' => 422,
-            'message' => 'Student Not Added'
-        );
-        echo json_encode($res); 
-        exit();
-    }
-   
+    echo json_encode($response);
 }
 ?>
