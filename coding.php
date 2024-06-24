@@ -1,53 +1,59 @@
 <?php
-require "dbcon.php";
+require 'dbcon.php';
 
-// Handle Add Student
-if (isset($_POST['save_Student'])) {
-    $name = $_POST['name'];
-    $email = $_POST['Email'];
-    $phone = $_POST['PhoneNumber'];
-    $course = $_POST['Course'];
+if(isset($_POST['delete_student'])) {
+    $student_id = mysqli_real_escape_string($con, $_POST['student_id']);
 
-    $query = "INSERT INTO students (Name, Email, Phone, Course) VALUES ('$name', '$email', '$phone', '$course')";
+    $query = "DELETE FROM students WHERE Id='$student_id'";
     $query_run = mysqli_query($con, $query);
 
-    if ($query_run) {
-        echo json_encode(['status' => 200, 'message' => 'Student added successfully.']);
+    if($query_run) {
+        echo json_encode(['status' => 200, 'message' => 'Student Deleted Successfully.']);
     } else {
-        echo json_encode(['status' => 500, 'message' => 'Failed to add student.']);
+        echo json_encode(['status' => 500, 'message' => 'Student Not Deleted.']);
     }
 }
 
-// Handle Edit Student Fetching
-if (isset($_GET['student_id'])) {
-    $student_id = $_GET['student_id'];
+if(isset($_POST['update_student'])) {
+    $student_id = mysqli_real_escape_string($con, $_POST['student_id']);
+    $name = mysqli_real_escape_string($con, $_POST['name']);
+    $email = mysqli_real_escape_string($con, $_POST['email']);
+    $phone = mysqli_real_escape_string($con, $_POST['phone']);
+    $course = mysqli_real_escape_string($con, $_POST['course']);
 
-    $query = "SELECT * FROM students WHERE Id='$student_id'";
-    $query_run = mysqli_query($con, $query);
-
-    if (mysqli_num_rows($query_run) == 1) {
-        $student = mysqli_fetch_array($query_run);
-        echo json_encode(['status' => 200, 'data' => $student]);
-    } else {
-        echo json_encode(['status' => 404, 'message' => 'Student not found.']);
+    if($name == NULL || $email == NULL || $phone == NULL || $course == NULL) {
+        echo json_encode(['status' => 422, 'message' => 'All fields are mandatory.']);
+        return;
     }
-}
-
-// Handle Update Student
-if (isset($_POST['update_Student'])) {
-    $student_id = $_POST['student_id'];
-    $name = $_POST['name'];
-    $email = $_POST['email'];
-    $phone = $_POST['phone'];
-    $course = $_POST['course'];
 
     $query = "UPDATE students SET Name='$name', Email='$email', Phone='$phone', Course='$course' WHERE Id='$student_id'";
     $query_run = mysqli_query($con, $query);
 
-    if ($query_run) {
-        echo json_encode(['status' => 200, 'message' => 'Student updated successfully.']);
+    if($query_run) {
+        echo json_encode(['status' => 200, 'message' => 'Student Updated Successfully.']);
     } else {
-        echo json_encode(['status' => 500, 'message' => 'Failed to update student.']);
+        echo json_encode(['status' => 500, 'message' => 'Student Not Updated.']);
+    }
+}
+
+if(isset($_POST['save_student'])) {
+    $name = mysqli_real_escape_string($con, $_POST['name']);
+    $email = mysqli_real_escape_string($con, $_POST['Email']);
+    $phone = mysqli_real_escape_string($con, $_POST['PhoneNumber']);
+    $course = mysqli_real_escape_string($con, $_POST['Course']);
+
+    if($name == NULL || $email == NULL || $phone == NULL || $course == NULL) {
+        echo json_encode(['status' => 422, 'message' => 'All fields are mandatory.']);
+        return;
+    }
+
+    $query = "INSERT INTO students (Name, Email, Phone, Course) VALUES ('$name','$email','$phone','$course')";
+    $query_run = mysqli_query($con, $query);
+
+    if($query_run) {
+        echo json_encode(['status' => 200, 'message' => 'Student Created Successfully.']);
+    } else {
+        echo json_encode(['status' => 500, 'message' => 'Student Not Created.']);
     }
 }
 ?>

@@ -1,222 +1,230 @@
-<?php 
-require "dbcon.php";
+<?php
+require 'dbcon.php';
 ?>
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-    <title>Student FORM PHP</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Management System</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
-<!-- Add Student Modal -->
-<div class="modal fade" id="studentModal" tabindex="-1" aria-labelledby="AddStudentModal" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h1 class="modal-title fs-5" id="AddStudentModal">Add Student</h1>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<div class="container mt-5">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <h4>Student Management System</h4>
+          <button type="button" class="btn btn-primary float-right" data-toggle="modal" data-target="#studentModal">Add Student</button>
+        </div>
+        <div class="card-body">
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Course</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="myTable">
+              <?php
+              $query = "SELECT * FROM students";
+              $query_run = mysqli_query($con, $query);
+              if (mysqli_num_rows($query_run) > 0) {
+                foreach ($query_run as $student) {
+                  ?>
+                  <tr>
+                    <td><?= $student['Id']; ?></td>
+                    <td><?= $student['Name']; ?></td>
+                    <td><?= $student['Email']; ?></td>
+                    <td><?= $student['Phone']; ?></td>
+                    <td><?= $student['Course']; ?></td>
+                    <td>
+                      <button type="button" value="<?= $student['Id']; ?>" class="viewStudentBtn btn btn-info">View</button>
+                      <button type="button" value="<?= $student['Id']; ?>" class="editStudentBtn btn btn-success">Edit</button>
+                      <button type="button" value="<?= $student['Id']; ?>" class="deleteStudentBtn btn btn-danger">Delete</button>
+                    </td>
+                  </tr>
+                  <?php
+                }
+              }
+              ?>
+            </tbody>
+          </table>
+        </div>
       </div>
-      <form id="saveStudent"> 
+    </div>
+  </div>
+</div>
+
+<!-- Add Student Modal -->
+<div class="modal fade" id="studentModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <form id="saveStudent">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Add Student</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
         <div class="modal-body">
-          <div class="alert alert-warning d-none" id="errorMessage"></div>
-          <div class="mb-3">
-            <label for="name" class="form-label">Name</label>
-            <input type="text" name="name" class="form-control">
+          <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" id="name" name="name" class="form-control">
           </div>
-          <div class="mb-3">
-              <label for="Email" class="form-label">Email</label>
-              <input type="text" name="Email" class="form-control">
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="Email" class="form-control">
           </div>
-          <div class="mb-3">
-              <label for="PhoneNumber" class="form-label">Phone Number</label>
-              <input type="text" name="PhoneNumber" class="form-control">
+          <div class="form-group">
+            <label for="phone">Phone</label>
+            <input type="text" id="phone" name="PhoneNumber" class="form-control">
           </div>
-          <div class="mb-3">
-              <label for="Course" class="form-label">Course</label>
-              <input type="text" name="Course" class="form-control">
+          <div class="form-group">
+            <label for="course">Course</label>
+            <input type="text" id="course" name="Course" class="form-control">
+          </div>
+          <div id="errorMessage" class="alert alert-danger d-none"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- View Student Modal -->
+<div class="modal fade" id="viewStudentModal" tabindex="-1" role="dialog" aria-labelledby="viewStudentModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <form>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="viewStudentModalLabel">View Student</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="view_name">Name</label>
+            <input type="text" id="view_name" class="form-control" readonly>
+          </div>
+          <div class="form-group">
+            <label for="view_email">Email</label>
+            <input type="email" id="view_email" class="form-control" readonly>
+          </div>
+          <div class="form-group">
+            <label for="view_phone">Phone</label>
+            <input type="text" id="view_phone" class="form-control" readonly>
+          </div>
+          <div class="form-group">
+            <label for="view_course">Course</label>
+            <input type="text" id="view_course" class="form-control" readonly>
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button type="submit" class="btn btn-primary">Save changes</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
         </div>
-      </form>
-    </div>
+      </div>
+    </form>
   </div>
 </div>
 
 <!-- Edit Student Modal -->
-<div class="modal fade" id="editStudentModal" tabindex="-1" aria-labelledby="EditStudentModal" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h1 class="modal-title fs-5" id="EditStudentModal">Edit Student</h1>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <form id="updateStudent"> 
+<div class="modal fade" id="editStudentModal" tabindex="-1" role="dialog" aria-labelledby="editStudentModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <form id="updateStudent">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editStudentModalLabel">Edit Student</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
         <div class="modal-body">
-          <div class="alert alert-warning d-none" id="errorMessageUpdate"></div>
-          <div class="mb-3">
-            <label for="student_id" class="form-label">ID</label>
-            <input type="text" name="student_id" id="student_id" class="form-control" readonly>
+          <input type="hidden" id="student_id" name="student_id">
+          <div class="form-group">
+            <label for="edit_name">Name</label>
+            <input type="text" id="edit_name" name="name" class="form-control">
           </div>
-          <div class="mb-3">
-              <label for="name" class="form-label">Name</label>
-              <input type="text" name="name" id="name" class="form-control">
+          <div class="form-group">
+            <label for="edit_email">Email</label>
+            <input type="email" id="edit_email" name="email" class="form-control">
           </div>
-          <div class="mb-3">
-              <label for="Email" class="form-label">Email</label>
-              <input type="text" name="email" id="email" class="form-control">
+          <div class="form-group">
+            <label for="edit_phone">Phone</label>
+            <input type="text" id="edit_phone" name="phone" class="form-control">
           </div>
-          <div class="mb-3">
-              <label for="PhoneNumber" class="form-label">Phone Number</label>
-              <input type="text" name="phone" id="phone" class="form-control">
+          <div class="form-group">
+            <label for="edit_course">Course</label>
+            <input type="text" id="edit_course" name="course" class="form-control">
           </div>
-          <div class="mb-3">
-              <label for="Course" class="form-label">Course</label>
-              <input type="text" name="course" id="course" class="form-control">
-          </div>
+          <div id="errorMessageUpdate" class="alert alert-danger d-none"></div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
           <button type="submit" class="btn btn-primary">Update</button>
         </div>
-      </form>
-    </div>
+      </div>
+    </form>
   </div>
 </div>
 
-<div class="container">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-header">
-                    <h4>Ajax CRUD Model PHP</h4>
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#studentModal">
-                        Add Student               
-                    </button>
-                </div>
-                <div class="card-body">
-                  <table id="myTables" class="table table-bordered table-striped">
-                    <thead>
-                       <tr>
-                          <th>Id</th>
-                          <th>Name</th>
-                          <th>Email</th>
-                          <th>Phone</th>
-                          <th>Course</th>
-                          <th>Action</th>
-                       </tr>
-                    </thead>
-                    <tbody>
-                        <?php
-                        $query = "SELECT * FROM students";
-                        $query_run = mysqli_query($con, $query);
-                        if (mysqli_num_rows($query_run) > 0) {
-                          foreach ($query_run as $student) {
-                            ?>
-                              <tr>
-                                <td><?= $student['Id']; ?></td>
-                                <td><?= $student['Name']; ?></td>
-                                <td><?= $student['Email']; ?></td>
-                                <td><?= $student['Phone']; ?></td>
-                                <td><?= $student['Course']; ?></td>
-                                <td>
-                                  <a href="#" class="btn btn-info">View</a>
-                                  <button type="button" value="<?= $student['Id']; ?>" class="editStudentBtn btn btn-success">Edit</button>
-                                  <a href="#" class="btn btn-danger">Delete</a>
-                                </td>
-                              </tr>
-                            <?php
-                          }
-                        }
-                        ?>
-                    </tbody>
-                  </table>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script>
-  // Add Student
-  $(document).on('submit', '#saveStudent', function(e) {
-    e.preventDefault(); // Prevent the default form submit action
-
-    var formData = new FormData(this);
-    formData.append("save_Student", true);
-
-    $.ajax({
-      type: "POST",
-      url: "coding.php",
-      data: formData,
-      processData: false,
-      contentType: false,
-      dataType: "json", // Add this line to ensure the response is parsed as JSON
-      success: function(response) {
-        if (response.status === 422) {
-          $('#errorMessage').removeClass('d-none');
-          $('#errorMessage').text(response.message);
-        } else if (response.status === 200) {
-          $('#errorMessage').addClass('d-none');
-          $('#studentModal').modal('hide');
-          $('#saveStudent')[0].reset();
-          $('#myTables').load(location.href + " #myTables");
-        } else if (response.status === 500) {
-          $('#errorMessage').removeClass('d-none');
-          $('#errorMessage').text(response.message);
-        }
-      },
-      error: function(xhr, status, error) {
-        console.error('AJAX error:', status, error);
-        $('#errorMessage').removeClass('d-none');
-        $('#errorMessage').text('An unexpected error occurred.');
-      }
-    });
-  });
-
-  // Edit Student
-  $(document).on('click', '.editStudentBtn', function() {
+$(document).ready(function () {
+  $(document).on('click', '.viewStudentBtn', function () {
     var student_id = $(this).val();
-    console.log("Edit button clicked for student ID: " + student_id);
-
     $.ajax({
       type: "GET",
-      url: "coding.php?student_id=" + student_id,
-      success: function(response) {
-        console.log("Edit AJAX success response: ", response);
-        var res = $.parseJSON(response);
-
-        if (res.status == 422) {
-          alert(res.message);
-        } else if (res.status == 200) {
-          $('#student_id').val(res.data.Id);
-          $('#name').val(res.data.Name);
-          $('#email').val(res.data.Email);
-          $('#phone').val(res.data.Phone);
-          $('#course').val(res.data.Course);
-
-          $('#editStudentModal').modal('show');
+      url: "view-student.php",
+      data: { 'student_id': student_id },
+      success: function (response) {
+        var res = jQuery.parseJSON(response);
+        if (res.status == 200) {
+          $('#view_name').val(res.data.Name);
+          $('#view_email').val(res.data.Email);
+          $('#view_phone').val(res.data.Phone);
+          $('#view_course').val(res.data.Course);
+          $('#viewStudentModal').modal('show');
         }
-      },
-      error: function(xhr, status, error) {
-        console.error('AJAX error:', status, error);
-        alert('An unexpected error occurred while fetching data.');
       }
     });
   });
 
-  // Update Student
-  $(document).on('submit', '#updateStudent', function(e) {
+  $(document).on('click', '.editStudentBtn', function () {
+    var student_id = $(this).val();
+    $.ajax({
+      type: "GET",
+      url: "get-student.php",
+      data: { 'student_id': student_id },
+      success: function (response) {
+        var res = jQuery.parseJSON(response);
+        if (res.status == 200) {
+          $('#student_id').val(res.data.Id);
+          $('#edit_name').val(res.data.Name);
+          $('#edit_email').val(res.data.Email);
+          $('#edit_phone').val(res.data.Phone);
+          $('#edit_course').val(res.data.Course);
+          $('#editStudentModal').modal('show');
+        }
+      }
+    });
+  });
+
+  $(document).on('submit', '#updateStudent', function (e) {
     e.preventDefault();
 
     var formData = new FormData(this);
-    formData.append("update_Student", true);
+    formData.append("update_student", true);
 
     $.ajax({
       type: "POST",
@@ -224,28 +232,68 @@ require "dbcon.php";
       data: formData,
       processData: false,
       contentType: false,
-      dataType: "json",
-      success: function(response) {
-        if (response.status === 422) {
-          $('#errorMessageUpdate').removeClass('d-none');
-          $('#errorMessageUpdate').text(response.message);
-        } else if (response.status === 200) {
+      success: function (response) {
+        var res = jQuery.parseJSON(response);
+        if (res.status == 200) {
           $('#errorMessageUpdate').addClass('d-none');
           $('#editStudentModal').modal('hide');
           $('#updateStudent')[0].reset();
-          $('#myTables').load(location.href + " #myTables");
-        } else if (response.status === 500) {
-          $('#errorMessageUpdate').removeClass('d-none');
-          $('#errorMessageUpdate').text(response.message);
+          $('#myTable').load(location.href + " #myTable");
+        } else if (res.status == 422) {
+          $('#errorMessageUpdate').removeClass('d-none').text(res.message);
         }
-      },
-      error: function(xhr, status, error) {
-        console.error('AJAX error:', status, error);
-        $('#errorMessageUpdate').removeClass('d-none');
-        $('#errorMessageUpdate').text('An unexpected error occurred.');
       }
     });
   });
+
+  $(document).on('click', '.deleteStudentBtn', function (e) {
+    e.preventDefault();
+
+    if (confirm('Are you sure you want to delete this student?')) {
+      var student_id = $(this).val();
+      $.ajax({
+        type: "POST",
+        url: "coding.php",
+        data: {
+          'delete_student': true,
+          'student_id': student_id
+        },
+        success: function (response) {
+          var res = jQuery.parseJSON(response);
+          if (res.status == 200) {
+            $('#myTable').load(location.href + " #myTable");
+          }
+        }
+      });
+    }
+  });
+
+  $(document).on('submit', '#saveStudent', function (e) {
+    e.preventDefault();
+
+    var formData = new FormData(this);
+    formData.append("save_student", true);
+
+    $.ajax({
+      type: "POST",
+      url: "coding.php",
+      data: formData,
+      processData: false,
+      contentType: false,
+      success: function (response) {
+        var res = jQuery.parseJSON(response);
+        if (res.status == 200) {
+          $('#errorMessage').addClass('d-none');
+          $('#studentModal').modal('hide');
+          $('#saveStudent')[0].reset();
+          $('#myTable').load(location.href + " #myTable");
+        } else if (res.status == 422) {
+          $('#errorMessage').removeClass('d-none').text(res.message);
+        }
+      }
+    });
+  });
+});
 </script>
 </body>
 </html>
